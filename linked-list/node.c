@@ -29,7 +29,7 @@ Node *create_node(int data)
     return node;
 }
 
-void append_node(LL *ll, int data)
+Node *append_node(LL *ll, int data)
 {
     Node *node = create_node(data);
     if (ll->tail == NULL)
@@ -43,6 +43,8 @@ void append_node(LL *ll, int data)
         ll->tail = node;
     }
     ll->size = ll->size + 1;
+
+    return node;
 }
 
 void list_foreach(LL *ll, foreach fn)
@@ -55,6 +57,15 @@ void list_foreach(LL *ll, foreach fn)
     }
 }
 
+void print_ll(Node *head)
+{
+    Node *curr = head;
+    while (curr != NULL)
+    {
+        printf("%d\n", curr->data);
+        curr = curr->next;
+    }
+}
 static void print_node(Node *node)
 {
     printf("%d\n", node->data);
@@ -218,27 +229,198 @@ void delete_duplicate_sorted(LL *ll)
     }
 }
 
+Node *get_middle_node(Node *head)
+{
+    Node *fp = head;
+    Node *sp = head;
+    int spCount = 0;
+
+    while (fp->next != NULL && fp->next->next != NULL)
+    {
+        sp = sp->next;
+        fp = fp->next->next;
+        spCount++;
+    }
+    return sp;
+}
+
+Node *merge_sorted(Node *h1, Node *h2)
+{
+    Node *head = NULL;
+    Node *tail = NULL;
+
+    if (h1->data > h2->data)
+    {
+        head = h2;
+        tail = h2;
+        h2 = h2->next;
+    }
+    else
+    {
+        head = h1;
+        tail = h1;
+        h1 = h1->next;
+    }
+    printf("h1 -> %p", h1);
+    printf("h2 -> %p", h2);
+
+    while (h1 != NULL || h2 != NULL)
+    {
+        if (h1 == NULL && h2 != NULL)
+        {
+            tail->next = h2;
+            printf("%d", 1);
+            break;
+        }
+        if (h2 == NULL && h1 != NULL)
+        {
+            tail->next = h1;
+            printf("%d", 2);
+            break;
+        }
+        if (h2->data <= h1->data)
+        {
+            tail->next = h2;
+            tail = h2;
+            h2 = h2->next;
+        }
+        else
+        {
+            tail->next = h1;
+            tail = h1;
+            h1 = h1->next;
+            printf("%d", 4);
+        }
+    }
+    return head;
+}
+
+Node *merge_sort(Node *head)
+{
+    if (head == NULL || head->next == NULL)
+    {
+        return head;
+    }
+
+    Node *middle = get_middle_node(head);
+    Node *head1 = middle->next;
+    middle->next = NULL;
+
+    head = merge_sort(head);
+    head1 = merge_sort(head1);
+
+    Node *sorted = merge_sorted(head, head1);
+    return sorted;
+}
+
+bool detect_cycle_in_linked_list(Node *head)
+{
+    Node *fp = head;
+    Node *sp = head;
+    bool has_cycle = false;
+
+    while (fp->next != NULL && fp->next->next != NULL)
+    {
+        fp = fp->next->next;
+        sp = sp->next;
+
+        if (fp == sp)
+        {
+            has_cycle = true;
+            break;
+        }
+    }
+
+    if (!has_cycle)
+    {
+        return false;
+    }
+
+    Node *t = head;
+    while (t != fp)
+    {
+        t = t->next;
+        fp = fp->next;
+    }
+
+    Node *circular_point = t;
+
+    while (sp->next != circular_point)
+    {
+        sp = sp->next;
+    }
+
+    sp->next = NULL;
+    return true;
+}
+
+Node *reverse_ll(Node *A)
+{
+    Node *curr = A;
+    Node *prev = NULL;
+
+    while (curr != NULL)
+    {
+        Node *next = curr->next;
+        curr->next = prev;
+        prev = curr;
+        curr = next;
+    }
+    return prev;
+}
+
+int is_palindrome(Node *A)
+{
+    Node *reversed = reverse_ll(A);
+    Node *h1 = A;
+    Node *h2 = reversed;
+
+    print_ll(h1);
+
+    while (h1 != NULL)
+    {
+        // printf("Comparing %d and the %d\n", h1->data, h2->data);
+        if (h1->data != h2->data)
+        {
+            return 0;
+        }
+        h1 = h1->next;
+        h2 = h2->next;
+    }
+
+    return 1;
+}
+
 int main()
 {
     LL *ll = create_linked_list();
+    LL *ll2 = create_linked_list();
     append_node(ll, 1);
     append_node(ll, 1);
-    append_node(ll, 2);
-    append_node(ll, 2);
-    append_node(ll, 2);
-    append_node(ll, 3);
+    append_node(ll, 6);
     append_node(ll, 4);
-    append_node(ll, 4);
-    append_node(ll, 4);
-    append_node(ll, 4);
-    append_node(ll, 4);
-    append_node(ll, 4);
-    append_node(ll, 4);
-    append_node(ll, 4);
-    append_node(ll, 4);
-    append_node(ll, 4);
-    append_node(ll, 4);
-    // delete_node(ll, 42);
+    append_node(ll, 1);
+    // append_node(ll, 20);
+    // // append_node(ll, 1);
+    // append_node(ll, 1);
+    // // append_node(ll, 2);
+    // // append_node(ll, 2);
+    // append_node(ll, 2);
+    // append_node(ll, 5);
+    // append_node(ll, 0);
+    // append_node(ll, -20);
+    // Node *node = append_node(ll, 50);
+    // Node *last_node = append_node(ll, -25);
+    // last_node->next = node;
+    // printf("\n%p-------------\n", ll->tail->next);
+
+    // append_node(ll2, 2);
+    // append_node(ll2, 4);
+    // append_node(ll2, 6);
+    // append_node(ll2, 8);
+    // append_node(ll2, 10);
+    // append_node(ll2, 11);
+    // append_node(ll2, 15);
     // Node *node = reverse_node(ll, ll->head);
     // print_all(ll);
     // printf("-------------------\n");
@@ -251,7 +433,23 @@ int main()
     // printf("%p\n", get_kth_element(ll, 5));
     // printf("%d\n", get_kth_element(ll, 5)->data);
 
-    delete_duplicate_sorted(ll);
-    print_all(ll);
+    // delete_duplicate_sorted(ll);
+    // print_all(ll);
+    // printf("-------------------\n");
+    // print_all(ll2);
+
+    // Node *sorted = merge_sorted(ll, ll2);
+    // print_ll(sorted);
+    // printf("-------------------\n");
+    // print_all(ll);
+    // printf("%d\n", get_middle_node(ll));
     // printf("%b\n", is_present(ll, 69));
+    // Node *sorted = merge_sort(ll->head);
+    // print_ll(ll->head);
+
+    // bool has_cycle = detect_cycle_in_linked_list(ll->head);
+    // printf("%b\n", has_cycle);
+    // print_ll(ll->head);
+
+    printf("%d\n", is_palindrome(ll->head));
 }
